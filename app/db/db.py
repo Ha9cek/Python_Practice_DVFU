@@ -21,3 +21,10 @@ SessionLocal = sessionmaker(bind=engine)
 
 def get_session():
     return SessionLocal()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

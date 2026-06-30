@@ -1,19 +1,18 @@
-from app.db.db import get_session
-from app.db import crud
+from fastapi import FastAPI
+
+from app.db.db import engine
+from app.db.models import Base
+from app.api import books, categories
+
+# создаём таблицы, если их ещё нет
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(title="Books API")
+
+app.include_router(categories.router)
+app.include_router(books.router)
 
 
-def main():
-    session = get_session()
-
-    categories = crud.get_categories(session)
-
-    for category in categories:
-        print(f"\n=== Категория: {category.title} ===")
-        for book in category.books:
-            print(f"  - {book.title} | {book.price} руб. | {book.description}")
-
-    session.close()
-
-
-if __name__ == "__main__":
-    main()
+@app.get("/health")
+def health():
+    return {"status": "ok"}
